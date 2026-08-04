@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Reports · RuralAttend{% endblock %}
+{% block title %}Reports · School Attendance{% endblock %}
 {% block content %}
 <div class="page-heading"><div><h1>Attendance reports</h1><p>Filter records and export them as CSV.</p></div><a class="btn btn-primary" href="{{ url_for('report_export', from_date=from_date, to_date=to_date, class_name=class_name, section=section) }}">Export CSV</a></div>
 <section class="card"><form method="get" class="filters"><label>From<input type="date" name="from_date" value="{{ from_date }}"></label><label>To<input type="date" name="to_date" value="{{ to_date }}"></label><label>Class<input name="class_name" value="{{ class_name }}" placeholder="All"></label><label>Section<input name="section" value="{{ section }}" placeholder="All"></label><button class="btn" type="submit">Apply</button></form>

@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}Login · RuralAttend{% endblock %}
+{% block title %}Login · School Attendance{% endblock %}
 {% block content %}
 <section class="auth-card">
-  <div class="auth-logo">RA</div>
-  <h1>QR Attendance System</h1>
-  <p class="muted">Designed for simple, low-cost attendance in rural schools.</p>
+  <img
+    src="{{ url_for('static', filename='images/school-logo.png') }}"
+    alt="School logo"
+    class="school-logo"
+  >
+  <h1>Attendance Portal</h1>
+  <p class="muted">Scan QR cards, record attendance instantly, and manage daily reports securely.</p>
   <form method="post" class="form-grid single">
     <label>Username<input name="username" autocomplete="username" required autofocus></label>
     <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
-    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    <button class="btn btn-primary btn-block" type="submit">Log in</button>
   </form>
-  <div class="demo-box"><strong>Demo accounts</strong><br>Admin: <code>admin / admin123</code><br>Teacher: <code>teacher / teacher123</code></div>
+  <div class="demo-box"><strong>Ohh Yeahh accounts</strong><br>Admin: <code>admin / admin123</code><br>Teacher: <code>teacher / teacher123</code></div>
 </section>
 {% endblock %}

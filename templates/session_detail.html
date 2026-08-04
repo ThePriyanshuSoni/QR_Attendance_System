@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Attendance Review · RuralAttend{% endblock %}
+{% block title %}Attendance Review · School Attendance{% endblock %}
 {% block content %}
 <div class="page-heading"><div><h1>Attendance review</h1><p>{{ attendance_session['attendance_date']|datefmt }} · Class {{ attendance_session['class_name'] }}-{{ attendance_session['section'] }} · {{ attendance_session['subject'] }} · Period {{ attendance_session['period'] }}</p></div><div class="actions">{% if attendance_session['status']=='open' %}<a class="btn btn-primary" href="{{ url_for('session_scan', session_id=attendance_session['id']) }}">Continue scanning</a><form method="post" action="{{ url_for('session_finalize', session_id=attendance_session['id']) }}" onsubmit="return confirm('Finalize this session and mark every unscanned student absent?')"><button class="btn btn-danger" type="submit">Finalize</button></form>{% endif %}</div></div>
 <div class="summary-strip"><span>Status <strong>{{ attendance_session['status'] }}</strong></span><span>Recorded <strong>{{ records|length }}</strong></span><span>Unmarked <strong>{{ unmarked|length }}</strong></span></div>

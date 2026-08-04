@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Scan QR Codes · RuralAttend{% endblock %}
+{% block title %}Scan QR Codes · School Attendance{% endblock %}
 {% block content %}
 <div class="page-heading"><div><h1>Scan attendance</h1><p>Class {{ attendance_session['class_name'] }}-{{ attendance_session['section'] }} · {{ attendance_session['subject'] }} · Period {{ attendance_session['period'] }}</p></div><a class="btn" href="{{ url_for('session_detail', session_id=attendance_session['id']) }}">Review attendance</a></div>
 <div class="scanner-layout">
