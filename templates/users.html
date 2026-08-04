@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Users · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Users</h1><p>Administrator and teacher accounts.</p></div><a class="btn btn-primary" href="{{ url_for('user_new') }}">Add user</a></div>
+<section class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Created</th></tr></thead><tbody>
+{% for user in users %}<tr><td>{{ user['full_name'] }}</td><td>{{ user['username'] }}</td><td><span class="badge">{{ user['role'] }}</span></td><td>{{ user['created_at']|datetime }}</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

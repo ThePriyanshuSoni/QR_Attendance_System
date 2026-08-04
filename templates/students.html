@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Students · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Students</h1><p>Register students and print their QR cards.</p></div>{% if g.user['role']=='admin' %}<a class="btn btn-primary" href="{{ url_for('student_new') }}">Add student</a>{% endif %}</div>
+<section class="card">
+<form method="get" class="filters">
+  <label>Search<input name="search" value="{{ search }}" placeholder="Name, admission or roll no."></label>
+  <label>Class<input name="class_name" value="{{ class_name }}" placeholder="e.g. 6"></label>
+  <label>Section<input name="section" value="{{ section }}" placeholder="e.g. A"></label>
+  <button class="btn" type="submit">Filter</button><a class="btn btn-light" href="{{ url_for('students') }}">Reset</a>
+</form>
+{% if students %}<div class="table-wrap"><table><thead><tr><th>Roll</th><th>Student</th><th>Class</th><th>Admission</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+{% for student in students %}<tr>
+<td>{{ student['roll_no'] }}</td><td><strong>{{ student['name'] }}</strong><br><small>{{ student['parent_phone'] or 'No parent phone' }}</small></td>
+<td>{{ student['class_name'] }}-{{ student['section'] }}</td><td>{{ student['admission_no'] }}</td><td><span class="badge badge-{{ 'active' if student['active'] else 'inactive' }}">{{ 'Active' if student['active'] else 'Inactive' }}</span></td>
+<td class="action-links"><a href="{{ url_for('student_card', student_id=student['id']) }}">QR card</a>{% if g.user['role']=='admin' %}<a href="{{ url_for('student_edit', student_id=student['id']) }}">Edit</a><form method="post" action="{{ url_for('student_toggle', student_id=student['id']) }}"><button class="link-button danger" type="submit">{{ 'Disable' if student['active'] else 'Enable' }}</button></form>{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">No students found.</p>{% endif %}
+</section>
+{% endblock %}

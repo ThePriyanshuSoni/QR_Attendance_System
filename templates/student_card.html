@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}QR Card · {{ student['name'] }}{% endblock %}
+{% block head %}<style>@media print {.topbar,.no-print,.flash-stack{display:none!important}.container{max-width:none;margin:0;padding:0}.id-card{box-shadow:none;border:2px solid #111;margin:20mm auto}}</style>{% endblock %}
+{% block content %}
+<div class="page-heading no-print"><div><h1>Student QR card</h1><p>Print and attach this card to the student's ID card.</p></div><div class="actions"><a class="btn" href="{{ url_for('students') }}">Back</a><button class="btn btn-primary" onclick="window.print()">Print card</button></div></div>
+<article class="id-card">
+  <div class="id-card-header"><strong>Rural School</strong><span>Attendance ID</span></div>
+  <img src="{{ qr_data_uri }}" alt="QR code for {{ student['name'] }}">
+  <h2>{{ student['name'] }}</h2>
+  <p>Class {{ student['class_name'] }}-{{ student['section'] }} · Roll {{ student['roll_no'] }}</p>
+  <p>Admission: {{ student['admission_no'] }}</p>
+  <small>{{ student['qr_token'] }}</small>
+</article>
+{% endblock %}

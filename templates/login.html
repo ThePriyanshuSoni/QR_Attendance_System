@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Login · RuralAttend{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <div class="auth-logo">RA</div>
+  <h1>QR Attendance System</h1>
+  <p class="muted">Designed for simple, low-cost attendance in rural schools.</p>
+  <form method="post" class="form-grid single">
+    <label>Username<input name="username" autocomplete="username" required autofocus></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+  <div class="demo-box"><strong>Demo accounts</strong><br>Admin: <code>admin / admin123</code><br>Teacher: <code>teacher / teacher123</code></div>
+</section>
+{% endblock %}

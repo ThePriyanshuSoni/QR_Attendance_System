@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}New Attendance Session · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Start attendance</h1><p>Select a registered class before scanning QR cards.</p></div></div>
+<section class="card narrow">
+{% if class_options %}
+<form method="post" class="form-grid single">
+<label>Class and section<select id="classSelect" required><option value="">Select class</option>{% for item in class_options %}<option data-class="{{ item['class_name'] }}" data-section="{{ item['section'] }}">Class {{ item['class_name'] }}-{{ item['section'] }} ({{ item['student_count'] }} students)</option>{% endfor %}</select></label>
+<input type="hidden" name="class_name" id="className"><input type="hidden" name="section" id="section">
+<label>Subject<input name="subject" placeholder="Mathematics" required></label>
+<label>Period<input name="period" placeholder="1" required></label>
+<label>Date<input type="date" name="attendance_date" value="{{ today }}" required></label>
+<div class="actions"><a class="btn" href="{{ url_for('sessions_list') }}">Cancel</a><button class="btn btn-primary" type="submit">Create and scan</button></div>
+</form>
+<script>const select=document.getElementById('classSelect');select.addEventListener('change',()=>{const o=select.options[select.selectedIndex];document.getElementById('className').value=o.dataset.class||'';document.getElementById('section').value=o.dataset.section||'';});</script>
+{% else %}<div class="empty"><p>No active students are registered.</p>{% if g.user['role']=='admin' %}<a class="btn btn-primary" href="{{ url_for('student_new') }}">Register first student</a>{% endif %}</div>{% endif %}
+</section>
+{% endblock %}

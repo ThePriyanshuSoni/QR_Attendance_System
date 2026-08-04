@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Add User · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Add user</h1><p>Create a teacher or administrator account.</p></div></div>
+<section class="card narrow"><form method="post" class="form-grid single">
+<label>Full name<input name="full_name" required></label>
+<label>Username<input name="username" required></label>
+<label>Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
+<label>Temporary password<input type="password" name="password" minlength="8" required></label>
+<div class="actions"><a class="btn" href="{{ url_for('users') }}">Cancel</a><button class="btn btn-primary" type="submit">Create user</button></div>
+</form></section>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Scan QR Codes · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Scan attendance</h1><p>Class {{ attendance_session['class_name'] }}-{{ attendance_session['section'] }} · {{ attendance_session['subject'] }} · Period {{ attendance_session['period'] }}</p></div><a class="btn" href="{{ url_for('session_detail', session_id=attendance_session['id']) }}">Review attendance</a></div>
+<div class="scanner-layout">
+<section class="card">
+  <h2>QR scanner</h2>
+  <p class="muted">Allow camera access and hold a student QR card inside the frame. You can also upload a QR image.</p>
+  <div class="video-frame"><video id="cameraVideo" playsinline muted></video><div id="scanGuide">Place the QR code inside the frame</div></div>
+  <div class="actions scanner-actions"><button class="btn btn-primary" id="startCamera" type="button">Start camera</button><button class="btn" id="stopCamera" type="button" disabled>Stop camera</button><label class="btn file-button">Scan image<input id="qrImage" type="file" accept="image/*" hidden></label></div>
+  <canvas id="scanCanvas" hidden></canvas>
+  <p id="browserMessage" class="muted">Camera scanning runs locally through the Flask server.</p>
+</section>
+<aside class="card scan-result"><h2>Latest result</h2><div id="resultBox" class="result-placeholder">Waiting for a QR code…</div><h3>Manual token</h3><form id="manualTokenForm" class="inline-form"><input id="manualToken" placeholder="STU-..." required><button class="btn" type="submit">Mark</button></form><div id="recentScans" class="recent-scans"></div></aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const tokenEndpoint={{ url_for('api_session_scan', session_id=attendance_session['id'])|tojson }};
+const imageEndpoint={{ url_for('api_session_scan_image', session_id=attendance_session['id'])|tojson }};
+const video=document.getElementById('cameraVideo');
+const canvas=document.getElementById('scanCanvas');
+const startButton=document.getElementById('startCamera');
+const stopButton=document.getElementById('stopCamera');
+const imageInput=document.getElementById('qrImage');
+const browserMessage=document.getElementById('browserMessage');
+let stream=null, scanning=false, busy=false, cooldownUntil=0;
+
+async function startCamera(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    browserMessage.textContent='This browser cannot access a camera. Use Scan image or manual token entry.';
+    return;
+  }
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+    video.srcObject=stream;
+    await video.play();
+    scanning=true;
+    startButton.disabled=true;
+    stopButton.disabled=false;
+    browserMessage.textContent='Camera started. Keep the QR card steady for a moment.';
+    scanLoop();
+  }catch(error){
+    browserMessage.textContent='Camera could not start. Check browser permission or use Scan image.';
+  }
+}
+
+function stopCamera(){
+  scanning=false;
+  if(stream){stream.getTracks().forEach(track=>track.stop());stream=null;}
+  video.srcObject=null;
+  startButton.disabled=false;
+  stopButton.disabled=true;
+  browserMessage.textContent='Camera stopped.';
+}
+
+function scanLoop(){
+  if(!scanning)return;
+  if(!busy && Date.now()>=cooldownUntil && video.readyState>=2){
+    const targetWidth=640;
+    const ratio=video.videoHeight/video.videoWidth || .75;
+    canvas.width=targetWidth;
+    canvas.height=Math.round(targetWidth*ratio);
+    const context=canvas.getContext('2d');
+    context.drawImage(video,0,0,canvas.width,canvas.height);
+    canvas.toBlob(blob=>{if(blob)sendImage(blob,true);},'image/jpeg',.82);
+  }
+  setTimeout(scanLoop,650);
+}
+
+async function sendImage(blob,silentNoQr){
+  if(busy)return;
+  busy=true;
+  const formData=new FormData();
+  formData.append('image',blob,'scan.jpg');
+  try{
+    const response=await fetch(imageEndpoint,{method:'POST',body:formData});
+    const data=await response.json();
+    if(data.no_qr && silentNoQr)return;
+    showApiResult(data);
+    if(!data.no_qr)cooldownUntil=Date.now()+1600;
+  }catch(error){
+    if(!silentNoQr)showMessage('The image could not be scanned.',false);
+  }finally{busy=false;}
+}
+
+async function markToken(token){
+  if(busy||!token)return;
+  busy=true;
+  showMessage('Checking…',null);
+  try{
+    const response=await fetch(tokenEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const data=await response.json();
+    showApiResult(data);
+  }catch(error){showMessage('Server error. Try again.',false);}
+  finally{busy=false;}
+}
+
+function showApiResult(data){
+  const student=data.student;
+  if(student){
+    const details=`<strong>${escapeHtml(student.name)}</strong><br>Class ${escapeHtml(student.class_name)}-${escapeHtml(student.section)} · Roll ${escapeHtml(student.roll_no)}<br><span>${escapeHtml(data.message)}</span>`;
+    showHtml(details,data.ok);
+  }else{showMessage(data.message||'Could not mark attendance.',false);}
+  addRecent(data.message||'Scan completed',data.ok);
+}
+function showMessage(message,ok){const box=document.getElementById('resultBox');box.className=ok===null?'result-placeholder':'scan-message '+(ok?'success':'error');box.textContent=message;}
+function showHtml(html,ok){const box=document.getElementById('resultBox');box.className='scan-message '+(ok?'success':'error');box.innerHTML=html;}
+function addRecent(message,ok){const list=document.getElementById('recentScans');const item=document.createElement('div');item.className='recent-item '+(ok?'ok':'bad');item.textContent=new Date().toLocaleTimeString()+' — '+message;list.prepend(item);while(list.children.length>6)list.lastChild.remove();}
+function escapeHtml(value){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+
+startButton.addEventListener('click',startCamera);
+stopButton.addEventListener('click',stopCamera);
+imageInput.addEventListener('change',event=>{const file=event.target.files[0];if(file)sendImage(file,false);event.target.value='';});
+document.getElementById('manualTokenForm').addEventListener('submit',event=>{event.preventDefault();const input=document.getElementById('manualToken');markToken(input.value.trim());input.value='';});
+window.addEventListener('beforeunload',stopCamera);
+</script>
+{% endblock %}

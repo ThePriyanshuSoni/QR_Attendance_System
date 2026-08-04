@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Reports · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Attendance reports</h1><p>Filter records and export them as CSV.</p></div><a class="btn btn-primary" href="{{ url_for('report_export', from_date=from_date, to_date=to_date, class_name=class_name, section=section) }}">Export CSV</a></div>
+<section class="card"><form method="get" class="filters"><label>From<input type="date" name="from_date" value="{{ from_date }}"></label><label>To<input type="date" name="to_date" value="{{ to_date }}"></label><label>Class<input name="class_name" value="{{ class_name }}" placeholder="All"></label><label>Section<input name="section" value="{{ section }}" placeholder="All"></label><button class="btn" type="submit">Apply</button></form>
+{% if rows %}<div class="table-wrap"><table><thead><tr><th>Roll</th><th>Student</th><th>Class</th><th>Present sessions</th><th>Absent sessions</th><th>Total sessions</th><th>Attendance</th></tr></thead><tbody>
+{% for row in rows %}{% set pct=(row['present_count']/row['total_records']*100) if row['total_records'] else 0 %}<tr><td>{{ row['roll_no'] }}</td><td>{{ row['name'] }}<br><small>{{ row['admission_no'] }}</small></td><td>{{ row['class_name'] }}-{{ row['section'] }}</td><td>{{ row['present_count'] }}</td><td>{{ row['absent_count'] }}</td><td>{{ row['total_records'] }}</td><td><strong>{{ '%.1f'|format(pct) }}%</strong></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">No attendance records match this date range.</p>{% endif %}</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if student else 'Add' }} Student · RuralAttend{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>{{ 'Edit student' if student else 'Register student' }}</h1><p>A unique QR token is created automatically for new students.</p></div></div>
+<section class="card"><form method="post" class="form-grid">
+<label>Admission number<input name="admission_no" value="{{ student['admission_no'] if student else '' }}" required></label>
+<label>Student name<input name="name" value="{{ student['name'] if student else '' }}" required></label>
+<label>Class<input name="class_name" value="{{ student['class_name'] if student else '' }}" placeholder="6" required></label>
+<label>Section<input name="section" value="{{ student['section'] if student else '' }}" placeholder="A" maxlength="4" required></label>
+<label>Roll number<input name="roll_no" value="{{ student['roll_no'] if student else '' }}" required></label>
+<label>Parent phone<input name="parent_phone" value="{{ student['parent_phone'] if student else '' }}" inputmode="tel"></label>
+<div class="actions full"><a class="btn" href="{{ url_for('students') }}">Cancel</a><button class="btn btn-primary" type="submit">{{ 'Save changes' if student else 'Register student' }}</button></div>
+</form></section>
+{% endblock %}
